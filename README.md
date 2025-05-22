@@ -8,7 +8,7 @@ A collection of custom nodes for ComfyUI focused on aspect ratio management and 
 1. Clone this repository into your `ComfyUI/custom_nodes` folder:
 ```bash
 cd ComfyUI/custom_nodes
-git clone https://github.com/YOUR_USERNAME/comfyui-koala.git
+git clone https://github.com/cloudkoala/comfyui-koala.git
 ```
 2. Restart ComfyUI
 
