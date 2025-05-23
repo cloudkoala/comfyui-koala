@@ -1,0 +1,14 @@
+[project]
+name = "koala"
+description = "A collection of custom nodes for ComfyUI focused on aspect ratio management and other utilities."
+version = "1.0.0"
+license = {file = "LICENSE"}
+
+[project.urls]
+Repository = "https://github.com/cloudkoala/comfyui-koala"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = ""
+DisplayName = "comfyui-koala"
+Icon = ""
