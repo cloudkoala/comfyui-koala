@@ -92,12 +92,6 @@ class AspectRatioLatentNode:
         
         return ({"samples": latent}, matched_width, matched_height, matched_ratio, info)
 
-
-
-
-
-
-
 class SaveMeshAnywhere:
     """
     A ComfyUI node that saves a 3D mesh to any location on disk.
@@ -108,7 +102,8 @@ class SaveMeshAnywhere:
         return {
             "required": {
                 "trimesh": ("TRIMESH",),
-                "save_path": ("STRING", {"default": "C:/output/model.glb"}),
+                "save_directory": ("STRING", {"default": "C:/output"}),
+                "filename": ("STRING", {"default": "model"}),
                 "file_format": (["glb", "obj", "ply", "stl", "3mf", "dae"],),
             }
         }
@@ -119,20 +114,20 @@ class SaveMeshAnywhere:
     CATEGORY = "Koala"
     OUTPUT_NODE = True
 
-    def save_mesh(self, trimesh, save_path, file_format):
+    def save_mesh(self, trimesh, save_directory, filename, file_format):
         # Make sure the directory exists
-        save_dir = os.path.dirname(save_path)
-        if save_dir and not os.path.exists(save_dir):
-            os.makedirs(save_dir, exist_ok=True)
+        if save_directory and not os.path.exists(save_directory):
+            os.makedirs(save_directory, exist_ok=True)
 
-        # Ensure the file has the correct extension
-        if not save_path.lower().endswith(f".{file_format}"):
-            save_path = f"{os.path.splitext(save_path)[0]}.{file_format}"
-
+        # Strip any extension from the filename
+        filename = os.path.splitext(filename)[0]
+        # Create the full path with the correct extension
+        save_path = os.path.join(save_directory, f"{filename}.{file_format}")
         # Save the mesh to the specified path
         trimesh.export(save_path, file_type=file_format)
 
         return (save_path,)
+
 # Node registration for ComfyUI
 NODE_CLASS_MAPPINGS = {
     "AspectRatioLatentNode": AspectRatioLatentNode,
