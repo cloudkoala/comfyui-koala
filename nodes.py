@@ -1,6 +1,9 @@
 import torch
 import numpy as np
 from PIL import Image
+from pathlib import Path
+import os
+import folder_paths
 
 class AspectRatioLatentNode:
     """
@@ -90,20 +93,57 @@ class AspectRatioLatentNode:
         return ({"samples": latent}, matched_width, matched_height, matched_ratio, info)
 
 
-# Add more node classes here as you develop them
-# class AnotherKoalaNode:
-#     ...
 
 
+
+
+
+class SaveMeshAnywhere:
+    """
+    A ComfyUI node that saves a 3D mesh to any location on disk.
+    """
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "trimesh": ("TRIMESH",),
+                "save_path": ("STRING", {"default": "C:/output/model.glb"}),
+                "file_format": (["glb", "obj", "ply", "stl", "3mf", "dae"],),
+            }
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("file_path",)
+    FUNCTION = "save_mesh"
+    CATEGORY = "Koala"
+    OUTPUT_NODE = True
+
+    def save_mesh(self, trimesh, save_path, file_format):
+        # Make sure the directory exists
+        save_dir = os.path.dirname(save_path)
+        if save_dir and not os.path.exists(save_dir):
+            os.makedirs(save_dir, exist_ok=True)
+
+        # Ensure the file has the correct extension
+        if not save_path.lower().endswith(f".{file_format}"):
+            save_path = f"{os.path.splitext(save_path)[0]}.{file_format}"
+
+        # Save the mesh to the specified path
+        trimesh.export(save_path, file_type=file_format)
+
+        return (save_path,)
 # Node registration for ComfyUI
 NODE_CLASS_MAPPINGS = {
     "AspectRatioLatentNode": AspectRatioLatentNode,
+    "SaveMeshAnywhere": SaveMeshAnywhere,
     # Add more nodes here as you create them
-    # "AnotherKoalaNode": AnotherKoalaNode,
+
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "AspectRatioLatentNode": "Koala Aspect Ratio Empty Latent",
+    "SaveMeshAnywhere": "Koala Save 3D Mesh Anywhere",
     # Add more display names here
-    # "AnotherKoalaNode": "Koala Another Node",
+
 }
