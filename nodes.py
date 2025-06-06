@@ -128,10 +128,61 @@ class SaveMeshAnywhere:
 
         return (save_path,)
 
+class SaveImageAnywhere:
+    """
+    A ComfyUI node that saves an image to any location on disk.
+    """
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "images": ("IMAGE",),
+                "save_directory": ("STRING", {"default": "C:/output"}),
+                "filename": ("STRING", {"default": "image"}),
+                "file_format": (["png", "jpg"],),
+                "quality": ("INT", {"default": 95, "min": 1, "max": 100, "step": 1}),
+            }
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("file_path",)
+    FUNCTION = "save_image"
+    CATEGORY = "Koala"
+    OUTPUT_NODE = True
+
+    def save_image(self, images, save_directory, filename, file_format, quality):
+        # Make sure the directory exists
+        if save_directory and not os.path.exists(save_directory):
+            os.makedirs(save_directory, exist_ok=True)
+
+        # Get the first image from the batch
+        image = images[0]
+
+        # Convert from torch tensor to PIL Image
+        # ComfyUI images are in format [batch, height, width, channels] and in range 0-1
+        i = 255. * image.cpu().numpy()
+        img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
+
+        # Strip any extension from the filename
+        filename = os.path.splitext(filename)[0]
+
+        # Create the full path with the correct extension
+        save_path = os.path.join(save_directory, f"{filename}.{file_format}")
+
+        # Save the image to the specified path
+        if file_format.lower() == "jpg" or file_format.lower() == "jpeg":
+            img.save(save_path, format="JPEG", quality=quality)
+        else:  # png
+            img.save(save_path, format="PNG")
+
+        return (save_path,)
+
 # Node registration for ComfyUI
 NODE_CLASS_MAPPINGS = {
     "AspectRatioLatentNode": AspectRatioLatentNode,
     "SaveMeshAnywhere": SaveMeshAnywhere,
+    "SaveImageAnywhere": SaveImageAnywhere,
     # Add more nodes here as you create them
 
 }
@@ -139,6 +190,7 @@ NODE_CLASS_MAPPINGS = {
 NODE_DISPLAY_NAME_MAPPINGS = {
     "AspectRatioLatentNode": "Koala Aspect Ratio Empty Latent",
     "SaveMeshAnywhere": "Koala Save 3D Mesh Anywhere",
+    "SaveImageAnywhere": "Koala Save Image Anywhere",
     # Add more display names here
 
 }
